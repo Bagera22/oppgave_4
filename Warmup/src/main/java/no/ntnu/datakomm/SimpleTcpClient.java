@@ -8,7 +8,7 @@ import java.net.Socket;
  */
 public class SimpleTcpClient {
     // Remote host where the server will be running
-    private static final String HOST = "localhost";
+    private static final String HOST = "127.0.0.1";
     // TCP port
     private static final int PORT = 1301;
 
@@ -98,20 +98,25 @@ public class SimpleTcpClient {
     /**
      * Try to establish TCP connection to the server (the three-way handshake).
      *
-     * @param host The remote host to connect to. Can be domain (localhost, ntnu.no, etc), or IP address
-     * @param port TCP port to use
+     * @param HOST The remote host to connect to. Can be domain (localhost, ntnu.no, etc), or IP address
+     * @param PORT TCP port to use
      * @return True when connection established, false otherwise
      */
-    private boolean connectToServer(String host, int port) {
+    private boolean connectToServer(String HOST, int PORT) {
+        boolean conekted = false;
         try {
-            Socket socket = new Socket(host, port);
+            Socket socket = new Socket("ntnu.no", 80);
+            System.out.println("conekted");
+            conekted = true;
+
+            socket.close();
         }
         catch (IOException e){
             System.out.println("Socket error:" + e.getMessage());
         }
         // TODO - implement this method
         // Remember to catch all possible exceptions that the Socket class can throw.
-        return false;
+        return conekted;
     }
 
     /**
