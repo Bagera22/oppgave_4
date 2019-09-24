@@ -1,5 +1,8 @@
 package no.ntnu.datakomm;
 
+import java.io.IOException;
+import java.net.Socket;
+
 /**
  * A Simple TCP client, used as a warm-up exercise for assignment A4.
  */
@@ -100,7 +103,13 @@ public class SimpleTcpClient {
      * @return True when connection established, false otherwise
      */
     private boolean connectToServer(String host, int port) {
-        // TODO - implement this method heihei.
+        try {
+            Socket socket = new Socket(host, port);
+        }
+        catch (IOException e){
+            System.out.println("Socket error:" + e.getMessage());
+        }
+        // TODO - implement this method
         // Remember to catch all possible exceptions that the Socket class can throw.
         return false;
     }
