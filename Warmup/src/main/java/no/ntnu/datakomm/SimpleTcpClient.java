@@ -1,5 +1,7 @@
 package no.ntnu.datakomm;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -11,7 +13,10 @@ public class SimpleTcpClient {
     private static final String HOST = "127.0.0.1";
     // TCP port
     private static final int PORT = 1301;
-
+    
+    private Socket socket = null;
+    private DataInputStream input = null;
+    private DataOutputStream out = null;
     /**
      * Run the TCP Client.
      *
@@ -26,7 +31,7 @@ public class SimpleTcpClient {
             Thread.currentThread().interrupt();
         }
     }
-
+   
     /**
      * Run the TCP Client application. The logic is already implemented, no need to change anything in this method.
      * You can experiment, of course.
@@ -92,7 +97,15 @@ public class SimpleTcpClient {
      * @return True on success, false otherwise
      */
     private boolean closeConnection() {
-        return false;
+        boolean disconnected = false;
+        try{
+        socket.close();        
+        disconnected = true;
+    }
+        catch (IOException e){
+            System.out.println(e);
+        }
+        return disconnected;
     }
 
     /**
@@ -105,11 +118,9 @@ public class SimpleTcpClient {
     private boolean connectToServer(String HOST, int PORT) {
         boolean conekted = false;
         try {
-            Socket socket = new Socket("ntnu.no", 80);
+            socket = new Socket("ntnu.no", 80);
             System.out.println("conekted");
             conekted = true;
-
-            socket.close();
         }
         catch (IOException e){
             System.out.println("Socket error:" + e.getMessage());
@@ -125,8 +136,19 @@ public class SimpleTcpClient {
      * @param request The request message to send. Do NOT include the newline in the message!
      * @return True when message successfully sent, false on error.
      */
-    private boolean sendRequestToServer(String request) {
+    private boolean sendRequestToServer(String request) throws IOException {
+        try {
+            request = input.readLine();
+        }
+        catch(IOException e){
+            System.out.print(e);
+        }
         // TODO - implement this method
+        out = new DataOutputStream(request);
+        while(request != null) {
+              
+        }
+        
         // Hint: What can go wrong? Several things:
         // * Connection closed by remote host (server shutdown)
         // * Internet connection lost, timeout in transmission
