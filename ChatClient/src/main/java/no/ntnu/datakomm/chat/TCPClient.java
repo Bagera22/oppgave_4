@@ -66,9 +66,6 @@ public class TCPClient {
      */
 
     private boolean sendCommand(String cmd) {
-
-
-
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
         return false;
@@ -138,13 +135,14 @@ public class TCPClient {
      *
      * @return one line of text (one command) received from the server
      */
-    private String waitServerResponse() {
-        
+    private String waitServerResponse() throws IOException {
+        BufferedReader fromServer = new BufferedReader(new InputStreamReader());
+        String response = fromServer.readLine();
         // TODO Step 3: Implement this method
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
 
-        return null;
+        return response;
     }
 
     /**
@@ -177,6 +175,20 @@ public class TCPClient {
      */
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
+            try {
+                String respons = waitServerResponse();
+                switch (respons){
+                    case "loginok":
+
+                        break;
+                    case  "loginerr":
+
+                        break;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             // TODO Step 3: Implement this method
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
