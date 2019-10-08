@@ -37,7 +37,6 @@ public class TCPClient {
         // Hint: Remember to set up all the necessary input/output stream variables
         return connected;
     }
-
     /**
      * Close the socket. This method must be synchronized, because several
      * threads may try to call it. For example: When "Disconnect" button is
@@ -65,7 +64,11 @@ public class TCPClient {
      * @param cmd A command. It should include the command word and optional attributes, according to the protocol.
      * @return true on success, false otherwise
      */
+
     private boolean sendCommand(String cmd) {
+
+
+
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
         return false;
@@ -90,6 +93,8 @@ public class TCPClient {
      * @param username Username to use
      */
     public void tryLogin(String username) {
+
+        sendCommand("login " + username);
         // TODO Step 3: implement this method
         // Hint: Reuse sendCommand() method
     }
@@ -134,6 +139,7 @@ public class TCPClient {
      * @return one line of text (one command) received from the server
      */
     private String waitServerResponse() {
+        
         // TODO Step 3: Implement this method
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
