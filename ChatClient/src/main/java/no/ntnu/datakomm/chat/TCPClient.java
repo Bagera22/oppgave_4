@@ -66,6 +66,12 @@ public class TCPClient {
      * @return true on success, false otherwise
      */
     private boolean sendCommand(String cmd) {
+        try {
+            boolean connectionActive = isConnectionActive();
+            PrintWriter command = new PrintWriter(cmd);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
         return false;
