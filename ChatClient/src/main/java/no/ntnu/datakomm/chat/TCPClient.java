@@ -9,6 +9,7 @@ public class TCPClient {
     private PrintWriter toServer;
     private BufferedReader fromServer;
     private Socket connection;
+    private InputStream in;
 
     // Hint: if you want to store a message for the last error, store it here
     private String lastError = null;
@@ -28,6 +29,7 @@ public class TCPClient {
             connection = new Socket ("datakomm.work", 1300);
             System.out.println("connected");
             connected = true;
+            in = connection.getInputStream();
         }
         catch (IOException e){
             System.out.println("Socket error:" + e.getMessage());
@@ -37,7 +39,6 @@ public class TCPClient {
         // Hint: Remember to set up all the necessary input/output stream variables
         return connected;
     }
-
     /**
      * Close the socket. This method must be synchronized, because several
      * threads may try to call it. For example: When "Disconnect" button is
@@ -47,7 +48,13 @@ public class TCPClient {
      * in the process of being closed. with "synchronized" keyword we make sure
      * that no two threads call this method in parallel.
      */
-    public synchronized void disconnect() {
+    public synchronized void disconnect(){
+        try {
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        onDisconnect();
         // TODO Step 4: implement this method
         // Hint: remember to check if connection is active
     }
@@ -65,6 +72,7 @@ public class TCPClient {
      * @param cmd A command. It should include the command word and optional attributes, according to the protocol.
      * @return true on success, false otherwise
      */
+
     private boolean sendCommand(String cmd) {
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
@@ -90,6 +98,8 @@ public class TCPClient {
      * @param username Username to use
      */
     public void tryLogin(String username) {
+
+        sendCommand("login " + username);
         // TODO Step 3: implement this method
         // Hint: Reuse sendCommand() method
     }
@@ -133,12 +143,20 @@ public class TCPClient {
      *
      * @return one line of text (one command) received from the server
      */
-    private String waitServerResponse() {
+    private String waitServerResponse() throws IOException {
+        fromServer = new BufferedReader(new InputStreamReader(in));
+        String response = fromServer.readLine();
         // TODO Step 3: Implement this method
+        if (response == null){
+            disconnect();
+            return "loginerr";
+        }
+        else {
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
 
-        return null;
+        return response;
+            }
     }
 
     /**
@@ -171,6 +189,20 @@ public class TCPClient {
      */
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
+            try {
+                String respons = waitServerResponse();
+                switch (respons){
+                    case "loginok":
+                        onLoginResult(true, null);
+                        break;
+                    case  "loginerr":
+                        onLoginResult(false, "Fail to log in");
+                        break;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             // TODO Step 3: Implement this method
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
@@ -235,6 +267,9 @@ public class TCPClient {
      * Internet error)
      */
     private void onDisconnect() {
+        for (ChatListener l : listeners) {
+            l.onDisconnect();
+        }
         // TODO Step 4: Implement this method
         // Hint: all the onXXX() methods will be similar to onLoginResult()
     }
