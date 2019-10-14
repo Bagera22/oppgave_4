@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 public class TCPClient {
     private PrintWriter toServer;
@@ -74,9 +75,25 @@ public class TCPClient {
      */
 
     private boolean sendCommand(String cmd) {
+        boolean sentCommand = false;
+        try {
+            isConnectionActive();
+            OutputStream out = connection.getOutputStream();
+            PrintWriter writer = new PrintWriter(out, true);
+            writer.println(cmd);
+            Scanner obj = new Scanner(System.in);
+            String optArg = obj.nextLine();
+            writer.println(optArg);
+
+            sentCommand = true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
-        return false;
+        return sentCommand;
     }
 
     /**
@@ -86,6 +103,11 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPublicMessage(String message) {
+        sendCommand(message);
+        
+
+        String sentMessage = message;
+        System.out.println("Message sent: " + sentMessage);
         // TODO Step 2: implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
