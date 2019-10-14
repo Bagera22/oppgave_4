@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
 public class TCPClient {
     private PrintWriter toServer;
@@ -27,7 +26,7 @@ public class TCPClient {
     public boolean connect(String host, int port) {
         boolean connected = false;
         try {
-            connection = new Socket ("datakomm.work", 1300);
+            connection = new Socket ("52.164.220.230", 1300);
             System.out.println("connected");
             connected = true;
             in = connection.getInputStream();
@@ -77,13 +76,14 @@ public class TCPClient {
     private boolean sendCommand(String cmd) {
         boolean sentCommand = false;
         try {
-            isConnectionActive();
-            OutputStream out = connection.getOutputStream();
-            PrintWriter writer = new PrintWriter(out, true);
-            writer.println(cmd);
-            Scanner obj = new Scanner(System.in);
-            String optArg = obj.nextLine();
-            writer.println(optArg);
+            if (isConnectionActive() == true) {
+                OutputStream out = connection.getOutputStream();
+                PrintWriter writer = new PrintWriter(out, true);
+                writer.println(cmd);
+                sentCommand = true;
+            }else{
+                    sentCommand = false;
+                }
 
             sentCommand = true;
         } catch (FileNotFoundException e) {
@@ -103,15 +103,18 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPublicMessage(String message) {
-        sendCommand(message);
-        
-
-        String sentMessage = message;
-        System.out.println("Message sent: " + sentMessage);
+        boolean sentMessage = false;
+        try {
+            sendCommand("msg " + message);
+            sentMessage = true;
+            System.out.println("Message sent: " + message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // TODO Step 2: implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
-        return false;
+        return sentMessage;
     }
 
     /**
@@ -144,10 +147,19 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPrivateMessage(String recipient, String message) {
+        boolean prvMsgSent = false;
+        try {
+            sendCommand("privmsg" + recipient + message);
+            prvMsgSent = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         // TODO Step 6: Implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
-        return false;
+        return prvMsgSent;
     }
 
 
