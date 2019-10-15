@@ -247,10 +247,10 @@ public class TCPClient {
 
                         break;
                     case "msgerr":
-
+                        onMsgError(responsPart[1]);
                         break;
                     case "cmderr":
-
+                        onCmdError(responsPart[1]);
                         break;
                     case "supported":
                         String[] coment = responsPart[1].split(" ");
@@ -371,6 +371,9 @@ public class TCPClient {
      * @param errMsg Error description returned by the server
      */
     private void onMsgError(String errMsg) {
+        for (ChatListener l : listeners) {
+            l.onMessageError(errMsg);
+        }
         // TODO Step 7: Implement this method
     }
 
@@ -380,6 +383,9 @@ public class TCPClient {
      * @param errMsg Error message
      */
     private void onCmdError(String errMsg) {
+        for (ChatListener l : listeners) {
+            l.onCommandError(errMsg);
+        }
         // TODO Step 7: Implement this method
     }
 
