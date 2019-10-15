@@ -85,7 +85,6 @@ public class TCPClient {
                     sentCommand = false;
                 }
 
-            sentCommand = true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -238,6 +237,21 @@ public class TCPClient {
                     case "users":
                         String[] user = responsPart[1].split(" ");
                         onUsersList(user);
+                        break;
+                    case "msg":
+                        String[] msgResp = responsPart[1].split(" ", 2);
+                       onMsgReceived(false, responsPart[0], msgResp[1] );
+                        break;
+                    case "privmsg":
+
+                        break;
+                    case "msgerr":
+
+                        break;
+                    case "cmderr":
+
+                        break;
+
                 }
 
 
@@ -339,6 +353,10 @@ public class TCPClient {
      * @param text   Message text
      */
     private void onMsgReceived(boolean priv, String sender, String text) {
+        for(ChatListener l : listeners ){
+            TextMessage tm = new TextMessage(sender, priv, text);
+            l.onMessageReceived(tm);
+        }
         // TODO Step 7: Implement this method
     }
 
