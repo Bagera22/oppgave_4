@@ -10,6 +10,7 @@ public class TCPClient {
     private BufferedReader fromServer;
     private Socket connection;
     private InputStream in;
+    private PrintWriter writer;
 
     // Hint: if you want to store a message for the last error, store it here
     private String lastError = null;
@@ -30,6 +31,9 @@ public class TCPClient {
             System.out.println("connected");
             connected = true;
             in = connection.getInputStream();
+            fromServer = new BufferedReader(new InputStreamReader(in));
+            OutputStream out = connection.getOutputStream();
+            writer = new PrintWriter(out, true);
         }
         catch (IOException e){
             System.out.println("Socket error:" + e.getMessage());
@@ -51,6 +55,7 @@ public class TCPClient {
     public synchronized void disconnect(){
         try {
             connection.close();
+            connection = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,21 +80,13 @@ public class TCPClient {
 
     private boolean sendCommand(String cmd) {
         boolean sentCommand = false;
-        try {
-            if (isConnectionActive() == true) {
-                OutputStream out = connection.getOutputStream();
-                PrintWriter writer = new PrintWriter(out, true);
-                writer.println(cmd);
-                sentCommand = true;
-            }else{
-                    sentCommand = false;
-                }
+        if (isConnectionActive() == true) {
+            writer.println(cmd);
+            sentCommand = true;
+        }else{
+                sentCommand = false;
+            }
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
         return sentCommand;
@@ -178,20 +175,20 @@ public class TCPClient {
      *
      * @return one line of text (one command) received from the server
      */
-    private String waitServerResponse() throws IOException {
-        fromServer = new BufferedReader(new InputStreamReader(in));
-        String response = fromServer.readLine();
-        // TODO Step 3: Implement this method
-        if (response == null){
+    private String waitServerResponse() {
+        String response = null;
+        try {
+            response = fromServer.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
             disconnect();
-            return "loginerr";
         }
-        else {
+        // TODO Step 3: Implement this method
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
 
         return response;
-            }
+
     }
 
     /**
@@ -224,46 +221,42 @@ public class TCPClient {
      */
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
-            try {
-                String respons = waitServerResponse();
-                String[] responsPart = respons.split(" ",2);
+            String respons = waitServerResponse();
+            String[] responsPart = respons.split(" ",2);
 
-                switch (responsPart[0]){
-                    case "loginok":
-                        onLoginResult(true, null);
-                        break;
-                    case "loginerr":
-                        onLoginResult(false, responsPart[1]);
-                        break;
-                    case "users":
-                        String[] user = responsPart[1].split(" ");
-                        onUsersList(user);
-                        break;
-                    case "msg":
-                        String[] msgResp = responsPart[1].split(" ", 2);
-                        onMsgReceived(false, msgResp[0], msgResp[1] );
-                        break;
-                    case "privmsg":
-                        msgResp = responsPart[1].split(" ", 2);
-                        onMsgReceived(true, msgResp[0], msgResp[1] );
-                        break;
-                    case "msgerr":
-                        onMsgError(responsPart[1]);
-                        break;
-                    case "cmderr":
-                        onCmdError(responsPart[1]);
-                        break;
-                    case "supported":
-                        String[] coment = responsPart[1].split(" ");
-                        onSupported(coment);
-                        break;
+            switch (responsPart[0]){
+                case "loginok":
+                    onLoginResult(true, null);
+                    break;
+                case "loginerr":
+                    onLoginResult(false, responsPart[1]);
+                    break;
+                case "users":
+                    String[] user = responsPart[1].split(" ");
+                    onUsersList(user);
+                    break;
+                case "msg":
+                    String[] msgResp = responsPart[1].split(" ", 2);
+                    onMsgReceived(false, msgResp[0], msgResp[1] );
+                    break;
+                case "privmsg":
+                    msgResp = responsPart[1].split(" ", 2);
+                    onMsgReceived(true, msgResp[0], msgResp[1] );
+                    break;
+                case "msgerr":
+                    onMsgError(responsPart[1]);
+                    break;
+                case "cmderr":
+                    onCmdError(responsPart[1]);
+                    break;
+                case "supported":
+                    String[] coment = responsPart[1].split(" ");
+                    onSupported(coment);
+                    break;
 
-                }
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
+
             // TODO Step 3: Implement this method
             // Hint: Reuse waitServerResponse() method
             // Hint: Have a switch-case (or other way) to check what type of response is received from the server
