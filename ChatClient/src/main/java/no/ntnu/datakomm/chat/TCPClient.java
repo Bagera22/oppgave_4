@@ -168,6 +168,7 @@ public class TCPClient {
      * Send a request for the list of commands that server supports.
      */
     public void askSupportedCommands() {
+        sendCommand("help");
         // TODO Step 8: Implement this method
         // Hint: Reuse sendCommand() method
     }
@@ -238,6 +239,12 @@ public class TCPClient {
                     case "users":
                         String[] user = responsPart[1].split(" ");
                         onUsersList(user);
+                        break;
+                    case "supported":
+                        String[] coment = responsPart[1].split(" ");
+                        onSupported(coment);
+                        break;
+
                 }
 
 
@@ -367,6 +374,9 @@ public class TCPClient {
      * @param commands Commands supported by the server
      */
     private void onSupported(String[] commands) {
+        for (ChatListener l : listeners) {
+            l.onSupportedCommands(commands);
+        }
         // TODO Step 8: Implement this method
     }
 }
