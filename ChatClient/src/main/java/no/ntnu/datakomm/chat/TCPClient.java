@@ -149,7 +149,7 @@ public class TCPClient {
     public boolean sendPrivateMessage(String recipient, String message) {
         boolean prvMsgSent = false;
         try {
-            sendCommand("privmsg" + recipient + message);
+            sendCommand("privmsg " + recipient +" " + message);
             prvMsgSent = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -241,10 +241,11 @@ public class TCPClient {
                         break;
                     case "msg":
                         String[] msgResp = responsPart[1].split(" ", 2);
-                       onMsgReceived(false, responsPart[0], msgResp[1] );
+                        onMsgReceived(false, msgResp[0], msgResp[1] );
                         break;
                     case "privmsg":
-
+                        msgResp = responsPart[1].split(" ", 2);
+                        onMsgReceived(true, msgResp[0], msgResp[1] );
                         break;
                     case "msgerr":
                         onMsgError(responsPart[1]);
